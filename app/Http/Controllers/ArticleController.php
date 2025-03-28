@@ -13,7 +13,7 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        $data = Article::all();
+        $data = Article::with(['user'])->get();
 
         return response()->json([
             'message' => 'get article success',
@@ -30,7 +30,6 @@ class ArticleController extends Controller
             'title' => 'required',
             'content' => 'required',
             'category' => 'required',
-            'user_id' => 'required|exists:users,id'
         ]);
 
         if ($validator->fails()) {
@@ -41,6 +40,8 @@ class ArticleController extends Controller
         }
 
         $validated = $validator->validated();
+
+        $validated['user_id'] = $request->user()->id;
 
         $data = Article::create($validated);
 
@@ -55,7 +56,7 @@ class ArticleController extends Controller
      */
     public function show(string $id)
     {
-        $data = Article::find($id);
+        $data = Article::with(['user'])->find($id);
 
         if (!$data) {
             return response()->json([
@@ -86,7 +87,6 @@ class ArticleController extends Controller
             'title' => 'required',
             'content' => 'required',
             'category' => 'required',
-            'user_id' => 'required|exists:users,id'
         ]);
 
         if ($validator->fails()) {
@@ -130,7 +130,7 @@ class ArticleController extends Controller
     {
         $userId = $request->user()->id;
 
-        $articles = Article::where('user_id', $userId)->get();
+        $articles = Article::with(['user'])->where('user_id', $userId)->get();
 
         return response()->json([
             'message' => 'get user articles success',

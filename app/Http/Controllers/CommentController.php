@@ -13,9 +13,9 @@ class CommentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(string $articles, string $comment)
+    public function index(string $articles)
     {
-        $comment = Comment::where('article_id', $articles)->get();
+        $comment = Comment::with(['user'])->where('article_id', $articles)->get();
 
         return response()->json([
             'data' => $comment
