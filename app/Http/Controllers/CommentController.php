@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Comment;
 use Dotenv\Util\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class CommentController extends Controller
@@ -90,6 +91,12 @@ class CommentController extends Controller
             ], 404);
         }
 
+        if (Auth::user()->id !== $comment->user_id) {
+            return response()->json([
+                'message' => 'forbidden'
+            ], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'content' => 'required',
         ]);
@@ -112,7 +119,7 @@ class CommentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $comment)
+    public function destroy(string $article, string $comment)
     {
         $comment = Comment::find($comment);
 
@@ -120,6 +127,12 @@ class CommentController extends Controller
             return response()->json([
                 'message' => 'comment not found'
             ], 404);
+        }
+
+        if (Auth::user()->id !== $comment->user_id) {
+            return response()->json([
+                'message' => 'forbidden'
+            ], 403);
         }
 
         $comment->delete();

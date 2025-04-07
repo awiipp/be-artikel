@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class ArticleController extends Controller
@@ -83,6 +84,12 @@ class ArticleController extends Controller
             ], 404);
         }
 
+        if (Auth::user()->id !== $article->user_id) {
+            return response()->json([
+                'message' => 'forbidden'
+            ], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => 'required',
             'content' => 'required',
@@ -119,6 +126,12 @@ class ArticleController extends Controller
             ], 404);
         }
 
+        if (Auth::user()->id !== $article->user_id) {
+            return response()->json([
+                'message' => 'forbidden'
+            ], 403);
+        }
+
         $article->delete();
 
         return response()->json([
@@ -126,11 +139,9 @@ class ArticleController extends Controller
         ], 200);
     }
 
-    public function myArticle(Request $request)
+    public function myArticle()
     {
-        $userId = $request->user()->id;
-
-        $articles = Article::with(['user'])->where('user_id', $userId)->get();
+        $articles = Article::with(['user'])->where('user_id', Auth::user()->id)->get();
 
         return response()->json([
             'message' => 'get user articles success',
